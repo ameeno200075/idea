@@ -15,5 +15,10 @@
     },
     "optionalDependencies": {
         "@laravel/multiplex": "^0.4.1"
+    },
+    "dependencies": {
+        "alpinejs": "^3.17.3",
+        "axios": "^1.20.0",
+        "playwright": "^1.63.0"
     }
 }

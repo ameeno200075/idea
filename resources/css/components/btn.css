@@ -23,7 +23,7 @@ button {
 }
 
 .btn.btn-outlined:hover {
-    background: color-mix(in srgb, black 25%, var(--color-input));
+    background: color-mix(in srgb, rgb(61, 23, 23) 25%, var(--color-input));
 }
 
 .btn.btn-ghost {
@@ -37,6 +37,6 @@ button {
 }
 
 .btn:hover {
-    background: color-mix(in srgb, black 10%, var(--color-primary));
+    background: color-mix(in srgb, rgb(65, 19, 19) 10%, var(--color-primary));
     text-decoration: none;
 }
