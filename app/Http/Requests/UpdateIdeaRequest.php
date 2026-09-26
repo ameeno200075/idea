@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\IdeaStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -12,7 +13,7 @@ class UpdateIdeaRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +24,25 @@ class UpdateIdeaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'title' => ['required', 'string', 'max:255'],
+
+            'description' => ['required', 'string'],
+
+            'status' => [
+                'required',
+                'string',
+                'in:'.implode(',', array_column(IdeaStatus::cases(), 'value')),
+            ],
+
+            'links' => ['nullable', 'array'],
+
+            'links.*' => ['nullable', 'url', 'max:255'],
+
+            'steps' => ['nullable', 'array'],
+
+            'steps.*.description' => ['nullable', 'string', 'max:255'],
+            'steps.*.completed' => ['nullable', 'boolean'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:5048'],
         ];
     }
 }

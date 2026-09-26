@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('idea_id')->constrained()->cascadeOnDelete();
             $table->string('description');
-            $table->boolean('completed');
+            $table->boolean('completed')->default(false);
             $table->timestamps();
         });
     }

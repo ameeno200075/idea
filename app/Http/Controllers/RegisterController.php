@@ -28,7 +28,7 @@ class RegisterController extends Controller
             'password' => $request->password,
         ]);
 
-        $user->notify(new WelcomeNotification());
+        $user->notify(new WelcomeNotification);
         Auth::login($user);
 
         return redirect('/')->with('success', 'Registration successful! You are now logged in.');

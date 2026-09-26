@@ -27,7 +27,7 @@ class WelcomeNotification extends Notification
     {
         return (new MailMessage)
             ->greeting('Welcome!')
-            ->line('Thanks for joining ' . config('app.name') . '. We are happy to have you.')
+            ->line('Thanks for joining '.config('app.name').'. We are happy to have you.')
             ->action('Get started', url('/'))
             ->line('We hope you enjoy building your ideas with us.');
     }

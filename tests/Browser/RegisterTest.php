@@ -1,18 +1,18 @@
 <?php
+
+use App\Models\User;
+
 test('register a user', function () {
 
     visit('/register')
         ->fill('name', 'John Doe')
-        ->fill('email', 'john-' . uniqid() . '@example.com')
+        ->fill('email', 'john-'.uniqid().'@example.com')
         ->fill('password', 'password123')
         ->press('Create Account')
-        ->assertPathIs('/');
+        ->assertPathIs('/ideas');
 
     $this->assertAuthenticated();
 });
-
-
-use App\Models\User;
 
 test('user can login', function () {
 
@@ -25,8 +25,7 @@ test('user can login', function () {
         ->fill('email', 'john@example.com')
         ->fill('password', 'password123')
         ->press('Login')
-        ->assertPathIs('/');
+        ->assertPathIs('/ideas');
 
     $this->assertAuthenticatedAs($user);
 });
-

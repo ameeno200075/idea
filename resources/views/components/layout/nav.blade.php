@@ -8,10 +8,13 @@
         </div>
         <div class="flex gap-4 items-center">
             @auth
-        <form action="/logout" method="POST">
-            @csrf
-            <button type="submit" class="btn">Logout</button>
-        </form>
+
+                <a href="{{ route('profile.edit') }}" class="btn btn-outlined">Edit Profile</a>
+                   <a href="/ideas" class="btn btn-outlined">Back To Ideas</a>
+                <form action="/logout" method="POST">
+                    @csrf
+                    <button type="submit" class="btn">Logout</button>
+                </form>
             @endauth
             @guest
 
