@@ -20,7 +20,9 @@ class IdeaController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $status = IdeaStatus::tryFrom($request->status);
+        $status = is_string($request->status)
+            ? IdeaStatus::tryFrom($request->status)
+            : null;
 
         $ideas = $user->ideas()
             ->when($status, fn ($query, $status) => $query->where('status', $status->value))

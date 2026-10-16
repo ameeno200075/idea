@@ -10,7 +10,6 @@ class CreateIdea
 {
     public function handle(array $attributes, User $user): void
     {
-        
         $imagePath = null;
 
         try {
@@ -31,7 +30,7 @@ class CreateIdea
 
                 $steps = collect($attributes['steps'] ?? [])
                     ->map(fn (array $step) => [
-                        'description' => $step['description'],
+                        'description' => $step['description'] ?? '',
                         'completed' => (bool) ($step['completed'] ?? false),
                     ]);
 

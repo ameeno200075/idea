@@ -1,58 +1,150 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Ideas
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Ideas is a Laravel application for capturing, organizing, and developing personal ideas. It includes CRUD management for ideas, actionable steps, links, images, Gemini-powered analysis for an individual idea, and a personal AI assistant that can work with the authenticated user's ideas.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- User registration, login, logout, and profile management
+- Create, list, filter, view, update, and delete ideas
+- Idea statuses: pending, in progress, and completed
+- Actionable steps with completion toggles
+- Optional links and featured images
+- AI Analysis for one authorized idea
+- Personal Idea Assistant for listing, summarizing, comparing, and prioritizing the authenticated user's ideas
+- Authorization that prevents users from accessing another user's ideas
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Tech stack
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3+
+- Laravel 13
+- MySQL for local development (SQLite is used by the test suite)
+- Blade
+- Alpine.js
+- Axios
+- Tailwind CSS and Vite
+- Gemini API
+- Pest and Laravel browser tests
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Installation
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+copy .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan storage:link
+npm install
+npm run build
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Configure database connection values in `.env` before running migrations.
 
-## Contributing
+## Environment configuration
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The required AI settings are:
 
-## Code of Conduct
+```dotenv
+AI_PROVIDER=gemini
+AI_BASE_URL=https://generativelanguage.googleapis.com/v1beta
+AI_API_KEY=
+AI_MODEL=gemini-flash-latest
+AI_TIMEOUT=30
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Put the Gemini API key only in the local or deployment environment `.env` file. Never commit it, place it in `.env.example`, render it in Blade, or send it to the browser.
 
-## Security Vulnerabilities
+## Database setup
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The migrations create users, sessions, ideas, actionable steps, cache, and queue tables. Ideas belong to users and steps belong to ideas. Deleting a user cascades to their ideas, and deleting an idea cascades to its steps.
 
-## License
+## Running the application
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+For development:
+
+```bash
+composer run dev
+```
+
+Or run the application and frontend separately:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+## Running tests
+
+```bash
+php artisan test
+vendor/bin/pint --test
+npm run build
+```
+
+The test suite uses Laravel HTTP fakes for Gemini requests; it does not depend on the real Gemini API.
+
+## AI architecture
+
+The browser never communicates directly with Gemini:
+
+```text
+Browser
+  -> Laravel controller
+  -> authentication, validation, and authorization
+  -> database query scoped to the authenticated user
+  -> limited AI context
+  -> Gemini
+  -> Laravel response
+  -> Browser
+```
+
+For AI Analysis, Laravel authorizes the selected idea and sends only the fields required for that analysis. For the Personal Idea Assistant, Laravel queries only the authenticated user's ideas and sends only `id`, `title`, `description`, `status`, and `created_at`.
+
+Gemini does not directly access the database, Eloquent models, arbitrary user records, or application credentials.
+
+## Security model
+
+- Authenticated routes use Laravel's `auth` middleware.
+- Idea ownership is enforced through `IdeaPolicy::workWith`.
+- Create and update requests validate user input before persistence.
+- Mass assignment is limited by model fillable configuration and action-level field selection.
+- Blade escapes displayed user and AI text; Alpine uses `x-text` for AI output.
+- CSRF protection applies to browser forms and Axios requests.
+- Gemini API keys remain server-side in environment configuration.
+- Provider failures are logged with status metadata only, not keys, prompts, or user idea data.
+
+## External AI privacy boundary
+
+AI requests send selected user content to the configured Gemini provider. The personal
+assistant sends each authenticated user's idea `id`, title, description, status, and
+creation timestamp together with the current chat message. Idea analysis sends the
+selected idea's title, description, and status. Images, links, passwords, and unrelated
+users' ideas are not included.
+
+Before deploying, disclose this data flow to users and review the Gemini account's data
+retention and privacy settings. Do not enable AI features in an environment where this
+transfer is not permitted for the stored idea data.
+
+## Project structure
+
+- `app/Http/Controllers` - HTTP endpoints and authorization boundaries
+- `app/Http/Requests` - request validation
+- `app/Actions` - idea persistence workflows
+- `app/Models` - Eloquent models and relationships
+- `app/Policies` - ownership authorization
+- `app/Services/AiChatService.php` - Gemini request and response handling
+- `resources/views` - Blade pages and Alpine UI
+- `database/migrations` - database schema
+- `tests/Feature` - HTTP and AI integration tests
+- `tests/Browser` - browser interaction tests
+
+## Future improvements
+
+Potential future work includes richer structured assistant responses, background processing for long AI requests, rate limiting, and expanded authorization and API failure coverage. These are not required for the current application flow.
+
+## Portfolio summary
+
+This project can honestly be described as:
+
+> A Laravel Ideas Management application enhanced with Gemini AI for individual Idea analysis and a personalized AI assistant.
+
+It demonstrates server-mediated AI integration, ownership-scoped data access, validation, CRUD workflows, and automated tests without giving the AI provider direct database access.

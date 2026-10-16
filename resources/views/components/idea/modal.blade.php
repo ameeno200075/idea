@@ -5,6 +5,7 @@
 
     <form x-data="{
         selectedStatus: @js(old('status', $idea->status->value ?? 'pending')),
+        imageSelected: false,
         newLink: '',
         links: @js(old('links', $idea->links ?? [])),
         newStep: '',
@@ -12,8 +13,19 @@
             'description' => $step->description,
             'completed' => $step->completed,
         ]))),
+        addLink() {
+            const value = (this.newLink || this.$refs.newLink?.value || '').trim();
+
+            if (!value) {
+                return;
+            }
+
+            this.links.push(value);
+            this.newLink = '';
+        },
     }" method="POST"
-        action="{{ $idea->exists ? route('ideas.update', $idea) : route('ideas.store') }}" enctype="multipart/form-data">
+        action="{{ $idea->exists ? route('ideas.update', $idea) : route('ideas.store') }}"
+        :enctype="imageSelected ? 'multipart/form-data' : 'application/x-www-form-urlencoded'">
 
         @csrf
 
@@ -74,7 +86,8 @@
                         </div>
                     @endif
 
-                    <input type="file" name="image" accept="image/*">
+                    <input type="file" name="image" accept="image/*"
+                        @change="imageSelected = $event.target.files.length > 0">
                     <x-form.error name="image" />
                 </div>
 
@@ -142,13 +155,12 @@
                     </template>
 
                     <div class="flex items-center gap-3">
-                        <input x-model="newLink" type="url" id="new-link" placeholder="https://example.com"
+                        <input x-ref="newLink" x-model="newLink" type="url" id="new-link" placeholder="https://example.com"
                             autocomplete="url" class="input flex-1" spellcheck="false" data-test="input-new-link"
-                            @keydown.enter.prevent="if (newLink.trim()) { links.push(newLink.trim()); newLink = ''; }">
+                            @keydown.enter.prevent="addLink()">
 
                         <button type="button" class="btn"
-                            @click="if (newLink.trim()) { links.push(newLink.trim()); newLink = ''; }"
-                            :disabled="!newLink.trim().length" data-test="button-add-link">
+                            @click="addLink()" data-test="button-add-link">
                             <x-icons.plus />
                         </button>
                     </div>

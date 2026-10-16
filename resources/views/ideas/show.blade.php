@@ -45,28 +45,137 @@
         </div>
 
 
-        <h1 class="text-3xl font-bold mt-6 mb-2">
-            {{ $idea->title }}
-        </h1>
+        <div
+            x-data="{
+                view: 'idea',
+                analysis: null,
+                loading: false,
+                error: '',
+                async selectAnalysis() {
+                    if (this.analysis) {
+                        this.view = 'analysis';
+                        return;
+                    }
 
-        <div class="mt-2 flex items-center gap-x-3">
+                    if (this.loading) {
+                        return;
+                    }
 
-            <x-idea.status-label :status="$idea->status" />
+                    this.loading = true;
+                    this.error = '';
 
-            <div class="text-muted-foreground text-sm">
-                {{ $idea->created_at->diffForHumans() }}
-            </div>
+                    try {
+                        const response = await window.axios.post('{{ route('ideas.analyze', $idea) }}');
+                        const analysis = response.data?.analysis;
 
-        </div>
-        @if ($idea->description)
-            <x-card class="mt-4">
+                        if (
+                            !analysis
+                            || typeof analysis.summary !== 'string'
+                            || !Array.isArray(analysis.strengths)
+                            || !Array.isArray(analysis.risks)
+                            || !Array.isArray(analysis.next_steps)
+                        ) {
+                            throw new Error('Invalid analysis response.');
+                        }
 
-                <div class="text-muted-foreground whitespace-pre-line">
-                    {{ $idea->description }}
+                        this.analysis = analysis;
+                        this.view = 'analysis';
+                    } catch (error) {
+                        this.error = error.response?.data?.message
+                            ?? 'Unable to analyze this idea. Please try again.';
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            }"
+        >
+            <h1 class="text-3xl font-bold mt-6 mb-2">
+                {{ $idea->title }}
+            </h1>
+
+            <div class="mt-2 flex items-center gap-x-3">
+
+                <x-idea.status-label :status="$idea->status" />
+
+                <div class="text-muted-foreground text-sm">
+                    {{ $idea->created_at->diffForHumans() }}
                 </div>
 
-            </x-card>
-        @endif
+            </div>
+
+            <div class="mt-5 flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1 w-fit">
+                <button
+                    type="button"
+                    @click="view = 'idea'"
+                    :class="view === 'idea' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+                    class="rounded-md px-3 py-1.5 text-sm font-medium transition"
+                >
+                    Idea
+                </button>
+
+                <button
+                    type="button"
+                    @click="selectAnalysis()"
+                    :class="view === 'analysis' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+                    class="rounded-md px-3 py-1.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60"
+                    :disabled="loading"
+                >
+                    ✨ AI Analysis
+                </button>
+            </div>
+
+            <p x-show="loading" class="mt-3 text-sm text-muted-foreground">
+                Analyzing...
+            </p>
+
+            <p x-show="error" x-text="error" class="mt-3 text-sm text-red-400"></p>
+
+            <div x-show="view === 'idea'">
+                @if ($idea->description)
+                    <x-card class="mt-4">
+
+                        <div class="text-muted-foreground whitespace-pre-line">
+                            {{ $idea->description }}
+                        </div>
+
+                    </x-card>
+                @endif
+            </div>
+
+            <div x-show="view === 'analysis' && analysis" x-cloak class="mt-4 space-y-4">
+                <div>
+                    <h2 class="font-semibold">Summary</h2>
+                    <p x-text="analysis?.summary" class="mt-1 text-muted-foreground whitespace-pre-line"></p>
+                </div>
+
+                <div>
+                    <h2 class="font-semibold">Strengths</h2>
+                    <ul class="mt-1 list-disc space-y-1 pl-5 text-muted-foreground">
+                        <template x-for="strength in analysis?.strengths" :key="strength">
+                            <li x-text="strength"></li>
+                        </template>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="font-semibold">Risks</h2>
+                    <ul class="mt-1 list-disc space-y-1 pl-5 text-muted-foreground">
+                        <template x-for="risk in analysis?.risks" :key="risk">
+                            <li x-text="risk"></li>
+                        </template>
+                    </ul>
+                </div>
+
+                <div>
+                    <h2 class="font-semibold">Next Steps</h2>
+                    <ul class="mt-1 list-disc space-y-1 pl-5 text-muted-foreground">
+                        <template x-for="step in analysis?.next_steps" :key="step">
+                            <li x-text="step"></li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+        </div>
 
 
 
