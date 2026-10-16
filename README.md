@@ -1,58 +1,153 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Idea — AI-Powered Idea Management
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A Laravel web application for managing ideas, tracking progress, and using Google's Gemini AI to analyze ideas and provide personalized assistance.
 
-## About Laravel
+## Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Idea combines traditional idea management with generative AI capabilities. Users can organize their ideas, track their status, and receive AI-powered feedback to help them evaluate and develop their plans.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The application uses Laravel as the backend layer between users, application data, and the Gemini API.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Features
 
-## Learning Laravel
+### Idea Management
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* Create, view, update, and delete ideas.
+* Track progress using Pending, In Progress, and Completed statuses.
+* Organize ideas with descriptions and steps.
+* Upload images associated with ideas.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### AI Assistant
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+* Chat with an AI assistant about your ideas.
+* Ask questions based on your own ideas.
+* Get help summarizing ideas and identifying priorities.
 
-## Agentic Development
+### AI-Powered Idea Analysis
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Analyze an idea and receive structured feedback:
+
+* **Summary:** An overview of the idea.
+* **Strengths:** Positive aspects and potential advantages.
+* **Risks:** Potential challenges and weaknesses.
+* **Next Steps:** Suggested actions to develop the idea.
+
+## Technology Stack
+
+| Technology        | Purpose                        |
+| ----------------- | ------------------------------ |
+| PHP 8.3+          | Backend programming language   |
+| Laravel 13        | Web application framework      |
+| MySQL             | Local development database     |
+| Google Gemini API | AI assistant and idea analysis |
+| Blade             | Server-rendered user interface |
+| Alpine.js         | Interactive UI components      |
+| Vite and npm      | Frontend asset tooling         |
+| Pest              | Automated testing              |
+
+## AI Integration Architecture
+
+The application uses a backend-mediated architecture for AI features.
+
+1. The user submits a message or requests an idea analysis.
+2. Laravel validates the request and checks authorization.
+3. The application selects the relevant idea information.
+4. The AI service sends the approved context to the Gemini API.
+5. The response is processed and returned to the user.
+
+The AI provider does not receive direct database access. Laravel controls access to application data and determines which information is included in AI requests.
+
+## Security Considerations
+
+* AI features are protected by authentication.
+* Authorization checks are applied before analyzing ideas.
+* Incoming requests are validated.
+* Only selected idea fields are sent as AI context.
+* API credentials should be stored in environment variables and never committed to version control.
+
+## Requirements
+
+* PHP 8.3 or later
+* Composer
+* Node.js and npm
+* A database supported by the application's Laravel configuration
+* A Google Gemini API key for AI functionality
+
+## Installation
+
+Clone the repository and enter the project directory.
+
+Install PHP dependencies:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Create your environment configuration:
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+On Windows PowerShell, use:
 
-## Code of Conduct
+```powershell
+Copy-Item .env.example .env
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Generate the application key:
 
-## Security Vulnerabilities
+```bash
+php artisan key:generate
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Configure your database connection and Gemini API credentials in `.env`, using the variable names defined by the project's configuration.
+
+Run database migrations:
+
+```bash
+php artisan migrate
+```
+
+Install frontend dependencies and build assets:
+
+```bash
+npm install
+npm run build
+```
+
+Start the Laravel development server:
+
+```bash
+php artisan serve
+```
+
+Open the local address displayed in your terminal.
+
+**Note:** Database configuration and AI environment variable names must match the project's actual configuration files.
+
+## Running Tests
+
+Run the configured Laravel test suite:
+
+```bash
+php artisan test
+```
+
+The project includes tests for important application functionality, including AI-assisted interactions and idea analysis.
+
+## Project Goals
+
+This project demonstrates practical implementation of AI-powered application features using Laravel, including:
+
+* Integration with an external generative AI API
+* Backend service design
+* Authentication and authorization
+* Request validation
+* Structured AI responses
+* Automated testing
+* Controlled sharing of application data with an AI provider
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Refer to the repository's license file for the applicable license terms.
