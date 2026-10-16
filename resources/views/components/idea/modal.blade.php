@@ -5,6 +5,7 @@
 
     <form x-data="{
         selectedStatus: @js(old('status', $idea->status->value ?? 'pending')),
+        imageSelected: false,
         newLink: '',
         links: @js(old('links', $idea->links ?? [])),
         newStep: '',
@@ -23,7 +24,8 @@
             this.newLink = '';
         },
     }" method="POST"
-        action="{{ $idea->exists ? route('ideas.update', $idea) : route('ideas.store') }}" enctype="multipart/form-data">
+        action="{{ $idea->exists ? route('ideas.update', $idea) : route('ideas.store') }}"
+        :enctype="imageSelected ? 'multipart/form-data' : 'application/x-www-form-urlencoded'">
 
         @csrf
 
@@ -84,7 +86,8 @@
                         </div>
                     @endif
 
-                    <input type="file" name="image" accept="image/*">
+                    <input type="file" name="image" accept="image/*"
+                        @change="imageSelected = $event.target.files.length > 0">
                     <x-form.error name="image" />
                 </div>
 

@@ -16,8 +16,7 @@ it('updates an existing idea', function () {
     ]);
 
     visit("/ideas/{$idea->id}")
-        // Use your actual edit button/link selector here
-        ->click('Edit')
+        ->click('@edit-idea-button')
         ->fill('title', 'My Updated Idea')
         ->fill('description', 'This is my updated Idea Description.')
         ->click('@button-status-completed')

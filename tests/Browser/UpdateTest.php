@@ -16,7 +16,7 @@ it('updates an existing idea', function () {
     ]);
 
     visit("/ideas/{$idea->id}")
-        ->click('Edit')
+        ->click('@edit-idea-button')
         ->fill('title', 'Updated Idea Title')
         ->fill('description', 'Updated idea description.')
         ->click('@button-status-completed')

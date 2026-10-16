@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\IdeaController;
 use App\Http\Controllers\IdeaImageController;
 use App\Http\Controllers\ProfileController;
@@ -9,6 +10,12 @@ use App\Http\Controllers\StepController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/ideas');
+
+Route::middleware(['auth', 'throttle:ai'])->group(function () {
+    Route::get('/assistant', [AiChatController::class, 'index'])->name('assistant.index');
+    Route::post('/assistant/chat', [AiChatController::class, 'chat'])->name('assistant.chat');
+    Route::post('/ideas/{idea}/analyze', [AiChatController::class, 'analyze'])->name('ideas.analyze');
+});
 
 Route::get('/ideas', [IdeaController::class, 'index'])->name('ideas.index')->middleware('auth');
 Route::get('/ideas/{idea}', [IdeaController::class, 'show'])

@@ -10,7 +10,10 @@
             @auth
 
                 <a href="{{ route('profile.edit') }}" class="btn btn-outlined">Edit Profile</a>
-                   <a href="/ideas" class="btn btn-outlined">Back To Ideas</a>
+                <button type="button" class="btn btn-outlined" onclick="window.dispatchEvent(new CustomEvent('open-assistant'))">
+                    AI Assistant
+                </button>
+                <a href="{{ route('ideas.index') }}" class="btn btn-outlined">Back To Ideas</a>
                 <form action="/logout" method="POST">
                     @csrf
                     <button type="submit" class="btn">Logout</button>

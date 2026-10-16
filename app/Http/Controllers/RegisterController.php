@@ -30,6 +30,7 @@ class RegisterController extends Controller
 
         $user->notify(new WelcomeNotification);
         Auth::login($user);
+        $request->session()->regenerate();
 
         return redirect('/')->with('success', 'Registration successful! You are now logged in.');
     }
